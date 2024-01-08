@@ -1,37 +1,27 @@
-// create web server
-
+// create web server with express
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const morgan = require('morgan');
+const router = express.Router(); // create router object
+const commentsController = require('../controllers/commentsController');
 
-// create express app
-const app = express();
+// GET /comments
+router.get('/', commentsController.index);
 
-// import routes
-const commentsRoutes = require('./routes/comments');
+// GET /comments/new
+router.get('/new', commentsController.new);
 
-// use morgan to log requests to the console
-app.use(morgan('dev'));
+// POST /comments
+router.post('/', commentsController.create);
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
+// GET /comments/:id
+router.get('/:id', commentsController.show);
 
-// parse requests of content-type - application/json
-app.use(bodyParser.json());
+// GET /comments/:id/edit
+router.get('/:id/edit', commentsController.edit);
 
-// enable cors
-app.use(cors());
+// PUT /comments/:id
+router.put('/:id', commentsController.update);
 
-// define a simple route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the comments application.' });
-});
+// DELETE /comments/:id
+router.delete('/:id', commentsController.delete);
 
-// use routes
-app.use('/comments', commentsRoutes);
-
-// listen for requests
-app.listen(3000, () => {
-  console.log('Server is listening on port 3000');
-});
+module.exports = router;
