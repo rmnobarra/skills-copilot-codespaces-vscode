@@ -1,52 +1,33 @@
-// create web server with express
-const express = require('express');
-const app = express();
-// import body-parser
-const bodyParser = require('body-parser');
-// import mongoose
-const mongoose = require('mongoose');
-// import comment model
-const Comment = require('./models/comment');
+// create web server
+// run node comments.js
+// open browser and go to http://localhost:3000
 
-// connect to mongodb
-mongoose.connect('mongodb://localhost:27017/commentDB', { useNewUrlParser: true });
+var http = require('http');
+var url = require('url');
+var items = [];
 
-// parse application/json
-app.use(bodyParser.json());
+var server = http.createServer(function (req, res) {
+    switch (req.method) {
+        case 'POST':
+            var item = '';
+            req.setEncoding('utf8');
+            req.on('data', function (chunk) {
+                item += chunk;
+            });
+            req.on('end', function () {
+                items.push(item);
+                res.end('OK\n');
+            });
+            break;
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+        case 'GET':
+            items.forEach(function (item, i) {
+                res.write(i + ') ' + item + '\n');
+            });
+            res.end();
+            break;
+    }
 
-// set up port
-const port = process.env.PORT || 3000;
-
-// create a route
-app.get('/', (req, res) => {
-    res.send('Welcome to comments app');
 });
 
-// create a route for getting all comments
-app.get('/comments', (req, res) => {
-    Comment.find({}, (err, comments) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.status(200).json(comments);
-        }
-    });
-});
-
-// create a route for getting a comment by id
-app.get('/comments/:id', (req, res) => {
-    Comment.findById(req.params.id, (err, comment) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.status(200).json(comment);
-        }
-    });
-});
-
-// create a route for posting a new comment
-app.post('/comments', (req, res) => {
-    let comment = new Comment({
+server.listen(3000);
